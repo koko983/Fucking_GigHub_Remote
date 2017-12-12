@@ -14,8 +14,8 @@ namespace GigHub.Models
         [Required]
         [StringLength(100)]
         public string Name { get; set; }
-        public ICollection<Following> Followers { get; set; }
-        public ICollection<Following> Followees { get; set; }
+        public ICollection<Following> Followers { get; private set; }
+        public ICollection<Following> Followees { get; private set; }
         public ICollection<UserNotification> UserNotifications { get; private set; }
 
         public ApplicationUser()
@@ -36,6 +36,7 @@ namespace GigHub.Models
         public void Notify(Notification notification)
         {
             UserNotifications.Add(new UserNotification(this, notification));
+            //please go fuck yourself.
         }
     }
 }

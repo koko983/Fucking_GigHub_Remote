@@ -35,5 +35,14 @@ namespace GigHub.Models
         {
             return new Notification(gig, NotificationType.GigCanceled);
         }
+
+        public static Notification GigUpdated(Gig gig, string originalVenue, DateTime originalDateTime)
+        {
+            var instance = new Notification(gig, NotificationType.GigUpdated);
+            instance.OriginalDateTime = originalDateTime;
+            instance.OriginalVenue = originalVenue;
+
+            return instance;
+        }
     }
 }
