@@ -1,8 +1,8 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace GigHub.Models
 {
@@ -37,38 +37,26 @@ namespace GigHub.Models
 
         public void Cancel()
         {
-            this.IsCanceled = true;
+            IsCanceled = true;
 
             var notification = Notification.GigCanceled(this);
 
-            var attendees = Attendances
-                .Select(a => a.Attendee)
-                .ToList();
-
-            foreach (var attendee in attendees)
+            foreach (var attendee in Attendances.Select(a => a.Attendee))
             {
                 attendee.Notify(notification);
             }
         }
 
-        public void Update(string venue, System.DateTime dateTime, byte genreId)
+        public void Modify(DateTime dateTime, string venue, byte genre)
         {
-            var originalVenue = Venue;
-            var originalDateTime = DateTime;
+            var notification = Notification.GigUpdated(this, DateTime, Venue);
 
             Venue = venue;
             DateTime = dateTime;
-            GenreId = genreId;
+            GenreId = genre;
 
-            Notification notification = Notification.GigUpdated(this, originalVenue, originalDateTime);
-            
-            var attendees = Attendances
-                .Select(a => a.Attendee);
-
-            foreach (var attendee in attendees)
-            {
+            foreach (var attendee in Attendances.Select(a => a.Attendee))
                 attendee.Notify(notification);
-            }
         }
     }
 }

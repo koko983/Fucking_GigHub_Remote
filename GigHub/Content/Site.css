@@ -36,6 +36,22 @@ span.field-validation-error {
 .voffset5 { margin-top: 80px; }
 
 /* Bootstrap Overrides */
+.navbar-inverse {
+    background-color: #ff4342;
+    border-color: #ff4342;
+}
+
+.navbar-inverse .navbar-nav > li > a {
+    color: #fff;
+}
+
+.navbar-inverse .navbar-brand {
+    color: #fff;
+}
+
+.navbar-inverse .navbar-nav > .open > a, .navbar-inverse .navbar-nav > .open > a:hover, .navbar-inverse .navbar-nav > .open > a:focus {
+    background-color: rgba(205, 40, 39, 0.55);
+}
 
 .dropdown-menu {
     box-shadow: none;
@@ -43,6 +59,8 @@ span.field-validation-error {
 }
 
 .navbar-inverse .navbar-nav > .dropdown > a .caret {
+    border-top-color: #fff;
+    border-bottom-color: #fff;
 }
 
 .navbar-brand {

@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace GigHub.Models
@@ -21,11 +22,16 @@ namespace GigHub.Models
 
         protected UserNotification()
         {
-
         }
 
         public UserNotification(ApplicationUser user, Notification notification)
         {
+            if (user == null)
+                throw new ArgumentNullException("user");
+
+            if (notification == null)
+                throw new ArgumentNullException("notification");
+
             User = user;
             Notification = notification;
         }
