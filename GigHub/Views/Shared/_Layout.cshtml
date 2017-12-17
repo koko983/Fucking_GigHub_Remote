@@ -39,5 +39,16 @@
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
     @RenderSection("scripts", required: false)
+    <script>
+        $(function () {
+            $.getJSON("/api/Notifications/GetNewNotifications", function (notifications) {
+                console.log("data", notifications);
+                $("#notifications_count")
+                    .text(notifications.length)
+                    .removeClass("hidden")
+                    .addClass("animated bounceInDown");
+            });
+        });
+    </script>
 </body>
 </html>
