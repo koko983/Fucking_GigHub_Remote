@@ -7,8 +7,9 @@
     <link href='https://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
-
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
 </head>
+
 <body>
     <div class="navbar navbar-inverse navbar-fixed-top">
         <div class="container">
@@ -20,11 +21,19 @@
                 </button>
                 @Html.ActionLink("GigHub", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
             </div>
-            <div class="navbar-collapse collapse">
+            <div class="navbar-collapse collapse" ng-app="mainApp" ng-controller="mainController">
                 <ul class="nav navbar-nav">
                     <li>@Html.ActionLink("Add a Gig", "Create", "Gigs")</li>
                 </ul>
                 @Html.Partial("_LoginPartial")
+                
+                <div id="shitty_angular_template" style="display: none">
+                    <ul>
+                        <li ng-repeat="notification in notifications">
+                            {{notification.type}} + {{notification.gig.artist.name}}
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
@@ -36,19 +45,45 @@
         </footer>
     </div>
 
+
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
     @RenderSection("scripts", required: false)
     <script>
         $(function () {
-            $.getJSON("/api/Notifications/GetNewNotifications", function (notifications) {
-                console.log("data", notifications);
-                $("#notifications_count")
-                    .text(notifications.length)
-                    .removeClass("hidden")
-                    .addClass("animated bounceInDown");
-            });
+            //$.getJSON("/api/Notifications/GetNewNotifications", function (notifications) {
+            //    console.log("data", notifications);
+            //    $("#notifications_count")
+            //        .text(notifications.length)
+            //        .removeClass("hidden")
+            //        .addClass("animated bounceInDown");
+            //});
         });
+    </script>
+    <script>
+        var mainController = function ($scope, $http) {
+            $scope.notifications = [];
+            $scope.notificationsCount = "";
+
+            $http.get("/api/Notifications/GetNewNotifications")
+                .then(function (response) {
+                    console.log("response", response);
+                    var notifications = response.data;
+                    $scope.notifications = notifications;
+                    $scope.notificationsCount = notifications.length;
+                    jQuery("#notifications_count")
+                        .removeClass("hidden");
+                        //.addClass("animated bounceInDown");
+                    jQuery("#notifications_link").popover({
+                        html: true,
+                        template: jQuery("#shitty_angular_template").html(),
+                        title: "Notifications",
+                        placement: "bottom"
+                    });
+                });
+        };
+        var app = angular.module('mainApp', []);
+        app.controller('mainController', mainController);
     </script>
 </body>
 </html>
