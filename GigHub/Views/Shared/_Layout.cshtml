@@ -7,7 +7,7 @@
     <link href='https://fonts.googleapis.com/css?family=Lato:400,700' rel='stylesheet' type='text/css'>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>
+    @*<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.5.6/angular.min.js"></script>*@
 </head>
 
 <body>
@@ -21,22 +21,16 @@
                 </button>
                 @Html.ActionLink("GigHub", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
             </div>
-            <div class="navbar-collapse collapse" ng-app="mainApp" ng-controller="mainController">
+
+            <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
                     <li>@Html.ActionLink("Add a Gig", "Create", "Gigs")</li>
                 </ul>
                 @Html.Partial("_LoginPartial")
-                
-                <div id="shitty_angular_template" style="display: none">
-                    <ul>
-                        <li ng-repeat="notification in notifications">
-                            {{notification.type}} + {{notification.gig.artist.name}}
-                        </li>
-                    </ul>
-                </div>
             </div>
         </div>
     </div>
+
     <div class="container body-content">
         @RenderBody()
         <hr />
@@ -46,20 +40,83 @@
     </div>
 
 
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/bootstrap")
-    @RenderSection("scripts", required: false)
+    @Scripts.Render("~/bundles/lib")
+    <script type="text/x-template" id="notifications_template">
+        <ul class="notifications">
+            <%
+            _.each(notifications, function(notification){
+            if (notification.type == 1) { %>
+            <li><span class="highlight"><%= notification.gig.artist.name %></span> has canceled the gig at <%= notification.gig.venue %> at <%= moment(notification.gig.dateTime).format("D MMM HH:mm") %>.</li>
+            <% }
+
+            else if (notification.type == 2) {
+            var changes = [],
+            originalValues = [],
+            newValues = [];
+
+            if (notification.originalVenue != notification.gig.venue) {
+            changes.push('venue');
+            originalValues.push(notification.originalVenue);
+            newValues.push(notification.gig.venue);
+            }
+
+            if (notification.originalDateTime != notification.gig.dateTime) {
+            changes.push('date/time');
+            originalValues.push(moment(notification.originalDateTime).format("D MMM HH:mm"));
+            newValues.push(moment(notification.gig.dateTime).format("D MMM HH:mm"));
+            }
+
+            %>
+            <li><span class="highlight"><%= notification.gig.artist.name %></span> has changed the <%= changes.join(' and ') %> of the gig from <%= originalValues.join('/') %> to <%= newValues.join('/') %></li>
+            <%
+            }
+            })
+            %>
+        </ul>
+    </script>
+
     <script>
         $(function () {
-            //$.getJSON("/api/Notifications/GetNewNotifications", function (notifications) {
-            //    console.log("data", notifications);
-            //    $("#notifications_count")
-            //        .text(notifications.length)
-            //        .removeClass("hidden")
-            //        .addClass("animated bounceInDown");
-            //});
+            $.getJSON("/api/Notifications", function (notifications) {
+                console.log("data", notifications);
+                if (!notifications.length)
+                    return;
+
+                $("#notifications_count")
+                    .text(notifications.length)
+                    .removeClass("hidden")
+                    .addClass("animated bounceInDown");
+
+                $("#notifications_link").popover({
+                    html: true,
+                    template: '<div class="popover popover-notifications" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>',
+                    content: function () {
+                        var compiled = _.template($("#notifications_template").html());
+                        return compiled({notifications: notifications})
+                    },
+                    title: "Notifications",
+                    placement: "bottom"
+                }).on("shown.bs.popover", function () {
+                    $.post("/api/Notifications")
+                        .done(function (data) {
+                            console.log("data", data);
+                            $("#notifications_count")
+                                .text("")
+                                .addClass("hidden");
+                        });
+                });
+            });
         });
     </script>
+    <!--
+    <div id="shitty_angular_template" style="display: none">
+        <ul>
+            <li ng-repeat="notification in notifications">
+                {{notification.type}} + {{notification.gig.artist.name}}
+            </li>
+        </ul>
+    </div>
+    
     <script>
         var mainController = function ($scope, $http) {
             $scope.notifications = [];
@@ -71,19 +128,12 @@
                     var notifications = response.data;
                     $scope.notifications = notifications;
                     $scope.notificationsCount = notifications.length;
-                    jQuery("#notifications_count")
-                        .removeClass("hidden");
-                        //.addClass("animated bounceInDown");
-                    jQuery("#notifications_link").popover({
-                        html: true,
-                        template: jQuery("#shitty_angular_template").html(),
-                        title: "Notifications",
-                        placement: "bottom"
-                    });
                 });
         };
         var app = angular.module('mainApp', []);
         app.controller('mainController', mainController);
     </script>
+    -->
+    @RenderSection("scripts", required: false)
 </body>
 </html>
